@@ -1,7 +1,7 @@
 # DIBS
 Official implementation for "DIBS: Enhancing Dense Video Captioning with Unlabeled Videos via Pseudo Boundary Enrichment and Online Refinement" (CVPR 2024)
 
-[\[Paper\]](!https://openaccess.thecvf.com/content/CVPR2024/html/Wu_DIBS_Enhancing_Dense_Video_Captioning_with_Unlabeled_Videos_via_Pseudo_CVPR_2024_paper.html)
+[\[Paper\]](https://openaccess.thecvf.com/content/CVPR2024/html/Wu_DIBS_Enhancing_Dense_Video_Captioning_with_Unlabeled_Videos_via_Pseudo_CVPR_2024_paper.html)
 
 ## Updates
 - 2024.6.X: Release code
@@ -61,4 +61,4 @@ If you find our work useful in your research, please consider citing:
 ```
 
 ## Acknowledgement
-We would like to thank the authors of the [PDVC](!https://github.com/ttengwang/PDVC) paper and the [Drop-DTW](!https://github.com/SamsungLabs/Drop-DTW) paper for making their code available as open-source. Their work has greatly contributed to our project.
+We would like to thank the authors of the [PDVC](https://github.com/ttengwang/PDVC) paper and the [Drop-DTW](https://github.com/SamsungLabs/Drop-DTW) paper for making their code available as open-source. Their work has greatly contributed to our project.
