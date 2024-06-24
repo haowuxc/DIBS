@@ -1,0 +1,19 @@
+id: ''
+base_cfg_path: cfgs_base/howto/howto-anet_anet_ori_(sim_op_order_v2)_CLIP_refine.yml
+
+
+pseudo_box_aug_num: 8
+pseudo_box_aug_ratio: 0.02
+pseudo_box_aug_mode: random_range
+refine_pseudo_box: 1
+refine_pseudo_stage_num: 2
+merge_k_boxes: 3
+pseudo_box_type: similarity_op_order_v2
+top_frames: 30
+width_ratio: 1
+iteration: 3
+width_th: 1
+use_query_box_for_refine: 0
+gt_proposal_sample_num: 20
+mil_loss_coef: 0
+merge_criterion: ins_cap_topk

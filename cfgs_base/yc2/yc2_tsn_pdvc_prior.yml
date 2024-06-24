@@ -1,0 +1,16 @@
+id: yc2_tsn_pdvc_prior
+base_cfg_path: cfgs_base/yc2_tsn_pdvcl.yml
+
+caption_decoder_type: standard
+cap_nheads: 1
+cap_dec_n_points: 4
+cap_num_feature_levels: 4
+soft_attention: 1
+att_hid_size: 512
+num_queries: 50
+
+ec_alpha: 1.0
+
+transformer_input_type: prior_proposals
+
+#dec_layers: 3

@@ -1,0 +1,17 @@
+id: base # the results and logs will saved in this folder ./save/id
+base_cfg_path: cfgs_base/anet/anet_c3d_pdvcl.yml
+
+visual_feature_type: ['UniVL']
+visual_feature_folder: ['/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/huabin/dataset/Anet/UniVL_feature/visual/']
+text_feature_folder: ['/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/huabin/dataset/Anet/UniVL_feature/text/']
+feature_dim: 768
+hidden_dim: 512
+
+caption_decoder_type: standard
+cap_nheads: 1
+cap_dec_n_points: 4
+cap_num_feature_levels: 4
+soft_attention: 1
+att_hid_size: 512
+
+ec_alpha: 1.0

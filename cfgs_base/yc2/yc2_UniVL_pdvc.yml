@@ -1,0 +1,20 @@
+id: yc2_UniVL_pdvc
+base_cfg_path: cfgs_base/yc2/yc2_tsn_pdvcl.yml
+
+visual_feature_type: ['UniVL']
+visual_feature_folder: ['/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/wuhao/youcook2/UniVL_features/UniVL_visual/']
+text_feature_folder: ['/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/wuhao/youcook2/UniVL_features/UniVL_text/']
+
+feature_dim: 768
+hidden_dim: 512
+
+caption_decoder_type: standard
+cap_nheads: 1
+cap_dec_n_points: 4
+cap_num_feature_levels: 4
+soft_attention: 1
+att_hid_size: 512
+
+num_queries: 50
+
+ec_alpha: 1.0

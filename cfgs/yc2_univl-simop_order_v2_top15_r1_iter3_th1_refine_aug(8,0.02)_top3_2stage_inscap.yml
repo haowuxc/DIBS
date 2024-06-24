@@ -1,0 +1,20 @@
+id: ''
+base_cfg_path: cfgs_base/yc2/yc2_ori_(sim_op_order_v2)_UniVL_refine.yml
+
+
+top_frames: 15
+width_ratio: 1 # scale for the width of the network
+iteration: 3
+width_th: 1
+
+pseudo_box_aug_num: 8
+pseudo_box_aug_ratio: 0.02
+pseudo_box_aug_mode: random_range
+refine_pseudo_box: 1
+refine_pseudo_stage_num: 2
+merge_k_boxes: 3
+pseudo_box_type: similarity_op_order_v2
+use_query_box_for_refine: 0
+gt_proposal_sample_num: 20
+mil_loss_coef: 0
+merge_criterion: ins_cap_topk

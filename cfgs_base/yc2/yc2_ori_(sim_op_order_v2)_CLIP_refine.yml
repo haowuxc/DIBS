@@ -1,0 +1,43 @@
+id: refine_aug(5,0.3)_top3_1stage
+base_cfg_path: cfgs_base/yc2/yc2_tsn_pdvcl.yml
+
+visual_feature_type: ['CLIP']
+visual_feature_folder: ['/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/wuhao/youcook2/clip_features/video/']
+text_feature_folder: ['/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/wuhao/youcook2/clip_features/text_proj/']
+feature_dim: 768
+hidden_dim: 512
+
+use_pseudo_box: 1
+pseudo_box_aug: 1
+pseudo_box_aug_num: 5
+pseudo_box_aug_ratio: 0.3
+refine_pseudo_box: 1
+refine_pseudo_stage_num: 2
+merge_k_boxes: 3
+pseudo_box_type: similarity_op_order_v2
+width_th: 0.5
+statistic_mode: mode
+width_ratio: 1
+window_size: 3
+top_frames: 10
+use_query_box_for_refine: 0
+gt_proposal_sample_num: 12
+
+use_anchor: 0
+pretrained_language_model: CLIP
+disable_contrastive_projection: 1
+
+caption_decoder_type: standard
+cap_nheads: 1
+cap_dec_n_points: 4
+cap_num_feature_levels: 4
+soft_attention: 1
+att_hid_size: 512
+
+num_queries: 100
+
+ec_alpha: 1.0
+
+self_iou_loss_coef: 0.0
+ref_rank_loss_coef: 0.0
+contrastive_loss_start_coef: 0.0
