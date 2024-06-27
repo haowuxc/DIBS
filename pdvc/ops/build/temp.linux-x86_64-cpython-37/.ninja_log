@@ -1,4 +1,0 @@
-# ninja log v5
-0	2930	1685020146224081877	/cpfs01/user/liuhuabin/PDVC/pdvc/ops/build/temp.linux-x86_64-cpython-37/cpfs01/user/liuhuabin/PDVC/pdvc/ops/src/cpu/ms_deform_attn_cpu.o	8f7db54445222f0
-0	10580	1685020153869972218	/cpfs01/user/liuhuabin/PDVC/pdvc/ops/build/temp.linux-x86_64-cpython-37/cpfs01/user/liuhuabin/PDVC/pdvc/ops/src/cuda/ms_deform_attn_cuda.o	91f10249ca524b9b
-0	13795	1685020157081510628	/cpfs01/user/liuhuabin/PDVC/pdvc/ops/build/temp.linux-x86_64-cpython-37/cpfs01/user/liuhuabin/PDVC/pdvc/ops/src/vision.o	3e48c35d2c631cee
