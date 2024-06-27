@@ -39,11 +39,12 @@ from misc.utils import print_alert_message, build_folder, create_logger, backup_
 from data.video_dataset import PropSeqDataset, collate_fn, PercentageSubsetDataset
 from pdvc.pdvc import build
 from collections import OrderedDict
-from transformers import AutoTokenizer, get_linear_schedule_with_warmup, get_cosine_schedule_with_warmup
+# from transformers import AutoTokenizer, get_linear_schedule_with_warmup, get_cosine_schedule_with_warmup
 import copy
 
 a100_folder = ['/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/wuhao/youcook2', '/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/wuhao/Tasty/features', '/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/huabin/dataset/Tasty/UniVL_feature', '/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/huabin/dataset/Anet', '/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/wuhao/howto100m/features']
-r3090_folder = ['/mnt/data/Gvlab/wuhao/features/yc2', '/mnt/data/Gvlab/wuhao/features/tasty', '/mnt/data/Gvlab/wuhao/features/tasty/univl', '/mnt/data/Gvlab/wuhao/features/anet', '/mnt/data/Gvlab/wuhao/features/howto100m']
+# r3090_folder = ['/mnt/data/Gvlab/wuhao/features/yc2', '/mnt/data/Gvlab/wuhao/features/tasty', '/mnt/data/Gvlab/wuhao/features/tasty/univl', '/mnt/data/Gvlab/wuhao/features/anet', '/mnt/data/Gvlab/wuhao/features/howto100m']
+r3090_folder = ['/ailab/group/pjlab-sport/wuhao/cpfs_3090/features/yc2', '/ailab/group/pjlab-sport/wuhao/cpfs_3090/features/tasty', '/ailab/group/pjlab-sport/wuhao/cpfs_3090/features/tasty/univl', '/ailab/group/pjlab-sport/wuhao/cpfs_3090/features/anet', '/ailab/group/pjlab-sport/wuhao/cpfs_3090/features/howto100m']
 
 pretrain_data_mode = 'mix' # 'mix' or 'seq' or 'single'
 
@@ -82,15 +83,8 @@ def train(opt):
     opt.pseudo_box_aug = False
     # breakpoint()
 
-    # breakpoint()
-    if 'howto-tasty_tasty' in save_folder:
-        if pretrain_data_mode == 'mix':
-            checkpoint_folder = re.sub(r"_seq2-ft.*", "", save_folder)
-        elif pretrain_data_mode == 'seq':
-            checkpoint_folder = re.sub(r"_seq2-ft.*", "_seq-train", save_folder) # .replace('_seq2-ft', '')
-        elif pretrain_data_mode == 'single':
-            checkpoint_folder = re.sub(r"_seq2-ft.*", "", save_folder.replace('howto-tasty_tasty', 'howto_tasty')) # .replace('_seq2-ft', '')
-    elif 'howto-yc2_yc2' in save_folder:
+
+    if 'howto-yc2_yc2' in save_folder:
         if pretrain_data_mode == 'mix':
             checkpoint_folder = re.sub(r"_seq2-ft.*", "", save_folder)
         elif pretrain_data_mode == 'seq':
@@ -119,11 +113,6 @@ def train(opt):
 
     if opt.id_ori != '':
         checkpoint_folder = checkpoint_folder + '_' + opt.id_ori
-    # breakpoint()
-    # if opt.id == "":
-    #     pass
-    # else:
-    #     checkpoint_folder = checkpoint_folder + '_' + opt.id
 
     if not os.path.exists(checkpoint_folder) and not os.path.exists(checkpoint_folder + '_es20'):
         print('the checkpoint folder {} does not exist'.format(checkpoint_folder))
@@ -152,46 +141,18 @@ def train(opt):
 
     saved_info = {'best': {}, 'last': {}, 'history': {}, 'eval_history': {}}
 
-    # # continue training
-    # if opt.start_from:
-    #     opt.pretrain = False
-    #     infos_path = os.path.join(save_folder, 'info.json')
-    #     with open(infos_path) as f:
-    #         logger.info('Load info from {}'.format(infos_path))
-    #         saved_info = json.load(f)
-    #         prev_opt = saved_info[opt.start_from_mode[:4]]['opt']
 
-    #         exclude_opt = ['start_from', 'start_from_mode', 'pretrain']
-    #         for opt_name in prev_opt.keys():
-    #             if opt_name not in exclude_opt:
-    #                 vars(opt).update({opt_name: prev_opt.get(opt_name)})
-    #             if prev_opt.get(opt_name) != vars(opt).get(opt_name):
-    #                 logger.info('Change opt {} : {} --> {}'.format(opt_name, prev_opt.get(opt_name),
-    #                                                                vars(opt).get(opt_name)))
     if len(opt.visual_feature_folder) == 2:
-        # train_dataset_pretrain = PropSeqDataset(opt.train_caption_file[0],
-        #                                     [opt.visual_feature_folder[0]],
-        #                                     [opt.text_feature_folder[0]],
-        #                                     opt.dict_file, True, 'gt',
-        #                                     opt)
         train_dataset_target = PropSeqDataset(opt.train_caption_file[1],
                                             [opt.visual_feature_folder[1]],
                                             [opt.text_feature_folder[1]],
                                             opt.dict_file, True, 'gt',
                                             opt)
         subset_data = PercentageSubsetDataset(train_dataset_target, opt.ft_gt_percent)
-        # train_loader_pretrain = DataLoader(train_dataset_pretrain, batch_size=opt.batch_size,
-        #                       shuffle=True, num_workers=opt.nthreads, collate_fn=collate_fn, worker_init_fn=_init_fn)
         train_loader_target = DataLoader(subset_data, batch_size=opt.batch_size,
                                     shuffle=True, num_workers=opt.nthreads, collate_fn=collate_fn, worker_init_fn=_init_fn)
-        
-        # train_dataloaders = [train_loader_pretrain, train_loader_target]
-        # train_dataset = torch.utils.data.ConcatDataset([train_dataset_1, train_dataset_2])
-        # train_dataset.translator = train_dataset_1.translator
 
     else:
-        # print('the script only support two dataset for pretrain and target task respectively')
-        # exit(1)
         train_dataset_target = PropSeqDataset(opt.train_caption_file,
                                     opt.visual_feature_folder,
                                     opt.text_feature_folder,
@@ -200,13 +161,7 @@ def train(opt):
         subset_data = PercentageSubsetDataset(train_dataset_target, opt.ft_gt_percent)
         train_loader_target = DataLoader(subset_data, batch_size=opt.batch_size,
                                 shuffle=True, num_workers=opt.nthreads, collate_fn=collate_fn, worker_init_fn=_init_fn)
-        # train_dataloaders = [train_loader_target]
 
-    # val_dataset = PropSeqDataset(opt.val_caption_file,
-    #                              opt.visual_feature_folder,
-    #                              opt.text_feature_folder,
-    #                              opt.dict_file, False, 'gt',
-    #                              opt)
     if not hasattr(opt, 'dict_file_val'):
         opt.dict_file_val = opt.dict_file
         opt.vocab_size_val = opt.vocab_size
@@ -230,61 +185,20 @@ def train(opt):
     opt.current_lr = vars(opt).get('current_lr', opt.lr)
 
     # Build model
-
     model, criterion, contrastive_criterion, postprocessors = build(opt)
     model.translator = train_dataset_target.translator
     model.train()
 
 
     # load pretrained model
-
-    # breakpoint()
-    # load pretrained model
     model_pth = torch.load(os.path.join(checkpoint_folder, 'model-best.pth'))
     logger.info('Loading pth from {}'.format(checkpoint_folder))
     model.load_state_dict(model_pth['model'], strict=False)
     
-
-    # # Recover the parameters
-    # if opt.start_from and (not opt.pretrain):
-    #     if opt.start_from_mode == 'best':
-    #         model_pth = torch.load(os.path.join(save_folder, 'model-best.pth'))
-    #     elif opt.start_from_mode == 'last':
-    #         model_pth = torch.load(os.path.join(save_folder, 'model-last.pth'))
-    #     logger.info('Loading pth from {}, iteration:{}'.format(save_folder, iteration))
-    #     model.load_state_dict(model_pth['model'])
-
-    # # Load the pre-trained model
-    # if opt.pretrain and (not opt.start_from):
-    #     logger.info('Load pre-trained parameters from {}'.format(opt.pretrain_path))
-    #     model_pth = torch.load(opt.pretrain_path, map_location=torch.device(opt.device))
-    #     # query_weight = model_pth['model'].pop('query_embed.weight')
-    #     if opt.pretrain == 'encoder':
-    #         encoder_filter = model.get_filter_rule_for_encoder()
-    #         encoder_pth = {k:v for k,v in model_pth['model'].items() if encoder_filter(k)}
-    #         model.load_state_dict(encoder_pth, strict=True)
-    #     elif opt.pretrain == 'decoder':
-    #         encoder_filter = model.get_filter_rule_for_encoder()
-    #         decoder_pth = {k:v for k,v in model_pth['model'].items() if not encoder_filter(k)}
-    #         model.load_state_dict(decoder_pth, strict=True)
-    #         pass
-    #     elif opt.pretrain == 'full':
-    #         # model_pth = transfer(model, model_pth)
-    #         model.load_state_dict(model_pth['model'], strict=True)
-    #     else:
-    #         raise ValueError("wrong value of opt.pretrain")
         
 
     model.to(opt.device)
 
-    # Decide which parameters need to be trained
-    # if (opt.matcher_type =='DTW' or opt.use_pseudo_box) and opt.text_encoder_learning_strategy == 'frozen':
-    #     for _, p in model.text_encoder.named_parameters():
-    #         p.requires_grad = False
-    #         text_encoder_params = list(map(id, model.text_encoder.parameters()))
-    #         other_params = filter(lambda p: id(p) not in text_encoder_params, model.parameters())
-    # else:
-    #     other_params = model.parameters()
     other_params = model.parameters()
 
     training_params = [{'params': other_params, 'lr': opt.lr * 0.5}]
@@ -297,23 +211,6 @@ def train(opt):
 
     milestone = [opt.learning_rate_decay_start + opt.learning_rate_decay_every * _ for _ in range(int((opt.epoch - opt.learning_rate_decay_start) / opt.learning_rate_decay_every))]
     lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestone, gamma=opt.learning_rate_decay_rate)
-
-    # Load tokenizer for text encoder
-    # for i in range(10):
-    #     try:
-    #         if opt.pretrained_language_model == 'UniVL':
-    #             tokenizer = AutoTokenizer.from_pretrained('bert-base-uncased')
-    #         else:
-    #             tokenizer = AutoTokenizer.from_pretrained(opt.pretrained_language_model)
-    #         break
-    #     except:
-    #         print('download error in AutoTokenizer, retry...')
-    #         time.sleep(1)
-
-    # if opt.start_from:
-    # breakpoint()
-    # optimizer.load_state_dict(model_pth['optimizer'], strict=False)
-        # lr_scheduler.step(epoch-1)
 
     # print the args for debugging  
     print_opt(opt, model, logger)
@@ -328,11 +225,6 @@ def train(opt):
     logger.info('loss type: {}'.format(weight_dict.keys()))
     logger.info('loss weights: {}'.format(weight_dict.values()))
 
-    # breakpoint()
-
-    # Epoch-level iteration
-    # opt.use_pseudo_box = False
-
     while True:
         if True:
             # scheduled sampling rate update
@@ -345,9 +237,6 @@ def train(opt):
             print('lr:{}'.format(float(opt.current_lr)))
             pass
 
-        # breakpoint()
-        # Batch-level iteration
-        # for train_loader in train_dataloaders:
         trained_samples = 0
         for dt in tqdm(train_loader_target, disable=opt.disable_tqdm):
             # # # for fast debugging
@@ -370,22 +259,8 @@ def train(opt):
                 {key: _.to(opt.device) if isinstance(_, torch.Tensor) else _ for key, _ in vid_info.items()} for vid_info in
                 dt['video_target']]
 
-            # Add text encoder
-            # if opt.matcher_type == 'DTW' or opt.use_pseudo_box:
-            #     captions = list()
-            #     for video_sents in dt['cap_raw']:  # dt['cap_raw']: [[sent_1, sent_2, ..., sent_n]]
-            #         captions.extend(video_sents) 
-            #     text_encoder_input = tokenizer(captions, return_tensors='pt', truncation=True, padding=True, max_length=opt.max_text_input_len)
-            #     text_encoder_input = {key: _.to(opt.device) if isinstance(_, torch.Tensor) else _ for key, _ in text_encoder_input.items()} 
-            #     # text_encoder_input: {'input_ids': tensor([[  101,  1996,  2307,  ...,     0,     0,     0],...]),  'attention_mask': tensor([[1, 1, 1,  ..., 0, 0, 0],...])}
-            #     # len(text_encoder_input['input_ids']) = n * max_text_input_len
-            #     dt['text_encoder_input'] = text_encoder_input
-
-            # dt = collections.defaultdict(lambda: None, dt) # Commented to 
-
             output, loss = model(dt, criterion, contrastive_criterion)
             final_loss = sum(loss[k] * weight_dict[k] for k in loss.keys() if k in weight_dict)
-            # breakpoint()
             final_loss.backward()
             torch.nn.utils.clip_grad_norm_(model.parameters(), opt.grad_clip)
 
@@ -442,30 +317,28 @@ def train(opt):
             result_json_path = os.path.join(save_folder, 'prediction',
                                          'num{}_epoch{}.json'.format(
                                              len(val_dataset), epoch))
-            #eval_score, eval_loss = evaluate(model, criterion,  postprocessors, val_loader, result_json_path, logger=logger, args=opt, alpha=opt.ec_alpha, device=opt.device, debug=opt.debug)
             eval_score, _ = evaluate(model, criterion,  postprocessors, val_loader, result_json_path, logger=logger, args=opt, alpha=opt.ec_alpha, device=opt.device, debug=opt.debug)
-            if opt.caption_decoder_type == 'none':
-                current_score = 2./(1./eval_score['Precision'] + 1./eval_score['Recall'])
-            else:
-                if opt.criteria_for_best_ckpt == 'dvc':
-                    current_score = np.array(eval_score['METEOR']).mean() + np.array(eval_score['soda_c']).mean()
-                else:
-                    current_score = np.array(eval_score['para_METEOR']).mean() + np.array(eval_score['para_CIDEr']).mean() + np.array(eval_score['para_Bleu_4']).mean()
+            # if opt.caption_decoder_type == 'none':
+            #     current_score = 2./(1./eval_score['Precision'] + 1./eval_score['Recall'])
+            # else:
+            #     if opt.criteria_for_best_ckpt == 'dvc':
+            #         current_score = np.array(eval_score['METEOR']).mean() + np.array(eval_score['soda_c']).mean() 
+            #     else:
+            #         current_score = np.array(eval_score['para_METEOR']).mean() + np.array(eval_score['para_CIDEr']).mean() + np.array(eval_score['para_Bleu_4']).mean()
 
             # add to tf summary
             for key in eval_score.keys():
                 tf_writer.add_scalar(key, np.array(eval_score[key]).mean(), iteration)
 
-            # Huabin comment this part for avoiding reporting losses during evaluation
-            # for loss_type in eval_loss.keys():
-            #     tf_writer.add_scalar('eval_' + loss_type, eval_loss[loss_type], iteration)
-
             _ = [item.append(np.array(item).mean()) for item in eval_score.values() if isinstance(item, list)]
             print_info = '\n'.join([key + ":" + str(eval_score[key]) for key in eval_score.keys()])
             logger.info('\nValidation results of iter {}:\n'.format(iteration) + print_info)
-            logger.info('\noverall score of iter {}: {}\n'.format(iteration, current_score))
             val_result_history[epoch] = {'eval_score': eval_score}
             logger.info('Save model at iter {} to {}.'.format(iteration, checkpoint_path))
+            
+            metrics = ['METEOR', 'CIDEr', 'soda_c', 'Precision', 'Recall']
+            current_score = sum([eval_score[metric] for metric in metrics])
+            logger.info('\noverall score of iter {}: {}\n'.format(iteration, current_score))
 
             # save the model parameter and  of best epoch
             if current_score >= best_val_score:
@@ -584,6 +457,5 @@ if __name__ == '__main__':
         torch.backends.cudnn.enabled = False
 
     os.environ['KMP_DUPLICATE_LIB_OK'] = 'True' # to avoid OMP problem on macos
-    # breakpoint()
     train(opt)
 

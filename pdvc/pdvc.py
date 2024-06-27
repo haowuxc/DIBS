@@ -295,44 +295,10 @@ class PDVC(nn.Module):
                 if self.opt.pseudo_box_type == 'align':
                     video_step_segment = [segment_video_into_steps(dt['video_tensor'][i], raw_text_embed[i].to(memory.device)) for i in range(N)]
                     bbox_alignment = [torch.tensor(alignment_to_boundary(video_step_segment[i], video_frame_num)).to(memory.device) for i in range(N)]
-                # elif self.opt.pseudo_box_type == 'similarity':
-                #     video_step_alignment = [align_frame_into_steps(dt['video_tensor'][i], raw_text_embed[i].to(memory.device)) for i in range(N)]
-                #     bbox_alignment = [(torch.tensor(video_step_alignment[i]) / video_frame_num).to(memory.device).to(torch.float32) for i in range(N)]
-                # breakpoint()
-                elif self.opt.pseudo_box_type == "similarity":
-                    # breakpoint()
-                    if self.opt.width_ratio < 0:
-                        video_step_alignment = [align_frame_into_steps(dt['video_tensor'][i], raw_text_embed[i].to(memory.device), \
-                                                                    topk=self.opt.top_frames, w=self.opt.window_size, mode=self.opt.statistic_mode) for i in range(N)]
-                    else:
-                        video_step_alignment = [align_frame_into_steps_order(dt['video_tensor'][i], raw_text_embed[i].to(memory.device), \
-                                                                            topk=self.opt.top_frames, w=self.opt.window_size, mode=self.opt.statistic_mode, ratio=self.opt.width_ratio) for i in range(N)]
-                elif self.opt.pseudo_box_type == 'similarity_op':
-                    video_step_alignment = [align_frame_into_steps_op(dt['video_tensor'][i], raw_text_embed[i].to(memory.device), \
-                                                                    topk=self.opt.top_frames, scale=self.opt.width_ratio, beta=1, order=False, num_iterations=self.opt.iteration) for i in range(N)]
-                elif self.opt.pseudo_box_type == 'similarity_op_order':
-                    video_step_alignment = [align_frame_into_steps_op(dt['video_tensor'][i], raw_text_embed[i].to(memory.device), topk=self.opt.top_frames, scale=self.opt.width_ratio, beta=1, order=True, num_iterations=self.opt.iteration) for i in range(N)]
-                elif self.opt.pseudo_box_type == 'similarity_op_order_v1':
-                    video_step_alignment = [align_frame_into_steps_op_v1(dt['video_tensor'][i], raw_text_embed[i].to(memory.device), topk=self.opt.top_frames, scale=self.opt.width_ratio, beta=1, order=True, num_iterations=self.opt.iteration) for i in range(N)]  
                 elif self.opt.pseudo_box_type == 'similarity_op_order_v2':
                     video_step_alignment = [align_frame_into_steps_op_order_v2(dt['video_tensor'][i], raw_text_embed[i].to(memory.device), topk=self.opt.top_frames, threshold=self.opt.width_th, ratio=self.opt.width_ratio, iteration=self.opt.iteration) for i in range(N)]
                 elif self.opt.pseudo_box_type == 'similarity_op_v2':
                     video_step_alignment = [align_frame_into_steps_op_v2(dt['video_tensor'][i], raw_text_embed[i].to(memory.device), topk=self.opt.top_frames, threshold=self.opt.width_th, ratio=self.opt.width_ratio, iteration=self.opt.iteration) for i in range(N)]
-                elif self.opt.pseudo_box_type == 'weight_sim':
-                    if self.opt.width_ratio < 0:
-                        video_step_alignment = [step_retrieval_weight_sim(dt['video_tensor'][i], raw_text_embed[i].to(memory.device), \
-                                                                    topk=self.opt.top_frames, w=self.opt.window_size) for i in range(N)]
-                    else:
-                        # breakpoint()
-                        video_step_alignment = [step_retrieval_weight_sim_order(dt['video_tensor'][i], raw_text_embed[i].to(memory.device), \
-                                                                    topk=self.opt.top_frames, w=self.opt.window_size, ratio=self.opt.width_ratio) for i in range(N)]
-
-                elif self.opt.pseudo_box_type == 'weight_index':
-                    video_step_alignment = [step_retrieval_weight_index(dt['video_tensor'][i], raw_text_embed[i].to(memory.device), \
-                                                                        topk=self.opt.top_frames, w=self.opt.window_size) for i in range(N)]
-                elif self.opt.pseudo_box_type == 'modeframe':
-                    video_step_alignment = [align_frame_into_steps_mode(dt['video_tensor'][i], raw_text_embed[i].to(memory.device), \
-                                                                        topk=self.opt.top_frames, w=self.opt.window_size, ratio=self.opt.width_ratio) for i in range(N)]
                 elif self.opt.pseudo_box_type == 'uniform':
                     video_step_alignment = [uniform_box(dt['video_tensor'][i], raw_text_embed[i].to(memory.device)) for i in range(N)]
                     # breakpoint()

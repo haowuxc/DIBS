@@ -239,10 +239,7 @@ def build_folder(opt):
                 save_foldername += '_S-layer'
             if opt.use_additional_cap_layer:
                 save_foldername += '_C-layer'
-            if 'puyu' in opt.train_caption_file[0]:
-                save_foldername += '_puyu'
-            elif 'mixlm' in opt.train_caption_file[0]:
-                save_foldername += '_mixlm'
+
 
         if opt.id != '':
             save_foldername += '_{}'.format(opt.id)
