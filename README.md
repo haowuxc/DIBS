@@ -4,7 +4,8 @@ Official implementation for "DIBS: Enhancing Dense Video Captioning with Unlabel
 [\[Paper\]](https://openaccess.thecvf.com/content/CVPR2024/html/Wu_DIBS_Enhancing_Dense_Video_Captioning_with_Unlabeled_Videos_via_Pseudo_CVPR_2024_paper.html)
 
 ## Updates
-- 2024.6.27: Release code
+- [x] 2024.6.28: Release code
+- [ ] Release extracted features
 ## Code
 ### Environment Configuration
 ```
