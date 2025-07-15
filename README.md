@@ -6,6 +6,7 @@ Official implementation for "DIBS: Enhancing Dense Video Captioning with Unlabel
 ## Updates
 - [x] 2024.6.28: Release code
 - [x] 2024.12.16: Release pre-extracted CLIP and UniVL features of the YouCook2, ActivityNet and Howto100M subset in this [link](https://huggingface.co/datasets/Exclibur/dibs-feature).
+- [x] 2025.7.15: Release model weights. The checkpoints can be accessed in [link](https://huggingface.co/Exclibur/DIBS). 
 ## Code
 ### Environment Configuration
 ```
