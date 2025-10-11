@@ -1,0 +1,1 @@
+python extract_single_video.py --video_path "/mnt/data/Gvlab/wuhao/dataset/vlep/videos/vlep_ytb_clips" --output_path "output/vlep_clip_feature" --type=2d --batch_size=20 --num_decoding_thread=4 --model=clip
