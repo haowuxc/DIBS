@@ -1,0 +1,79 @@
+from transformers import AutoModelWithLMHead, AutoTokenizer
+import torch
+import os
+import json
+# import os
+# os.environ["PYTORCH_CUDA_ALLOC_CONF"] = "max_split_size_mb:512"
+import re
+
+# Load model directly
+from transformers import AutoTokenizer, AutoModelForCausalLM
+
+# folder_path = "/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/wuhao/howto100m/howto100m_meta/vtts"  # 将此处替换为您的文件夹路径
+folder_path = "/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/wuhao/howto100m/howto100m_processed_subtitle"
+video_list = "/cpfs01/user/wuhao2/src/APDVC/z_utils/jsons/video_names.json"
+steps_dir = "/cpfs01/shared/Gvlab-A100/Gvlab-A100_hdd/wuhao/howto100m/howto100m_meta/steps_llama2"
+
+if not os.path.exists(steps_dir):
+    os.makedirs(steps_dir)
+
+# load video list
+with open(video_list, "r") as f:
+    video_list = json.load(f)
+video_num = len(video_list)
+
+model_name = "meta-llama/Llama-2-13b-chat-hf"
+prompt = "Task: Extract concise and action-oriented steps or instructions from the video subtitles, focusing solely on the sequential process. Each step should be presented as a single sentence with clear actions. Exclude any steps that are not directly related to the actions in the video. Generate the steps directly without repeating the original text.\n Example:\n 1.peel the skin from the onion and cut the onion into thin slices\n 2.pour milk on the onions\n 3.coat the onions in the flour mixture\n 4.deep fry the onions in the oil\n 5.sprinkle salt on top of the onions\n Subtitles:\n"
+prompt_start = "\nSteps:\n"
+
+# prompt = "Your task is to extract concise and action-oriented steps or instructions from the video subtitles, focusing solely on the sequential process. Each step should be presented as a single sentence with clear actions. Exclude any steps that are not directly related to the actions in the video. Generate the steos directly without repeating the original text. "
+access_token = "hf_xxx"
+max_new_tokens = 4000
+# gen_device = "cuda:1"
+# max_memory_mapping = {0: "75GB", 1: "75GB"}
+
+
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", torch_dtype=torch.float16, cache_dir="/cpfs01/user/wuhao2/models/checkpoints", use_auth_token=access_token, use_safetensors=False)
+tokenizer = AutoTokenizer.from_pretrained(model_name, cache_dir="/cpfs01/user/wuhao2/models/checkpoints", use_auth_token=access_token)
+
+
+def remove_timeline_format(text):
+    pattern = r'(\d{2}:\d{2}:\d{2}\.\d{3}) --> (\d{2}:\d{2}:\d{2}\.\d{3})'
+    return re.sub(pattern, '', text)
+
+for i, filename in enumerate(video_list):
+    print(f"Processing {i+1}/{video_num} video: {filename}")
+    basefilename = os.path.splitext(filename)[0]
+    file_path = os.path.join(folder_path, basefilename + ".en.vtt")
+    target_path = os.path.join(steps_dir, basefilename + ".txt")
+
+    if os.path.exists(target_path):
+        print(f"File {target_path} exists, skip.")
+        continue
+
+    if os.path.exists(file_path):
+        with open(file_path, "r", encoding="utf-8") as f:
+            vtt_content = f.read()
+            vtt_content = remove_timeline_format(vtt_content)
+            lines = vtt_content.split('\n')
+            non_empty_lines = [line for line in lines if line.strip()]
+            vtt_content = ' '.join(non_empty_lines)
+
+
+
+            # Encode input
+            model_inputs = tokenizer(prompt + vtt_content + prompt_start, return_token_type_ids=False, return_tensors="pt").to("cuda")
+
+            # breakpoint()
+            try:
+                output = model.generate(**model_inputs, max_new_tokens=max_new_tokens)
+                gen_text = tokenizer.decode(output[0], skip_special_tokens=True).split(prompt_start)[1]
+            except:
+                print(f"File {file_path} is too long, skip.")
+                continue
+
+            # save steps to file
+            with open(target_path, "w") as f:
+                f.write(gen_text)
+            # print(gen_text)
+            # breakpoint()
